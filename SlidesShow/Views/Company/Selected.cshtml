@@ -1,0 +1,190 @@
+﻿@model Addnew
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<h2 class="text-center">SlideShow Application</h2>
+<br />
+
+
+<form asp-action="Selected" method="post">
+
+
+    <label>Select Parent Property</label>
+    <select id ="Company" name="Company" id="Company">
+        <option value="1">Hines</option>
+        <option value="2">Hilton</option>
+        <option value="3" selected>All</option>
+        
+    </select>
+
+    <label>Select Club</label>
+    <select id="dropdown" name="Club" id="club" asp-items="ViewBag.SubList">
+        <option value="3">Hines_Hotels</option>
+        <option value="4">Hines_Gyms</option>
+        <option value="5">Hines_Spa</option>
+        <option value="6">Hilton_Hotels</option>
+        <option value="7">Hines_Gyms</option>
+        <option value="8">Hines_Spa</option>
+        <option value="9">Cafeteria</option>
+
+    </select>
+
+    <input type="submit" value="Select" />
+
+</form>
+<br />
+
+<div class="row">
+    <div class="col">
+        <h4>Screen Configuration for @ViewData["ClubName"]</h4>
+    </div>
+    <div class="col text-end">
+        <a id="loadPartialButton" style="text-decoration:none" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i>Add Slide</a>
+        <a id="Preview" style="text-decoration:none" asp-route-id="@Model.clubId" asp-controller="Company" asp-action="ShowSlideShow" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i>Preview</a>
+    </div>
+</div>
+
+<table class="table table-striped" id="table">
+    <thead>
+        <tr>
+            <th>
+                Image
+            </th>
+
+            <th>
+                Image Name
+
+            </th>
+            <th>
+                Width
+            </th>
+            <th>
+                Height
+            </th>
+            <th>
+                FileSize
+            </th>
+            <th>
+                Duration
+            </th>
+            <th>
+                BackgroundColor
+            </th>
+            <th>
+                Footer
+            </th>
+            <th>
+                Control
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <div id="partialContainer"></div>
+
+
+        @foreach (var item in Model.AllSelected)
+        {
+
+            <tr>
+
+                <td>
+                    <img src="@Url.Content("~/Images/"+(item.ImagePath))" alt="Image" width="50" height="50" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Width) px
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Height) px
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FileSize) kb
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Duration)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BackgroundColor)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Footer)
+                </td>
+
+                <td>
+
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>|
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+
+
+                </td>
+            </tr>
+        }
+
+        
+
+
+
+    </tbody>
+</table>
+
+<div id="partialBlok">
+
+</div>
+<div>
+    <partial name="_Create" model="@Model.NewAdd" />
+</div>
+
+
+
+
+
+<script type="text/javascript">
+
+
+
+    $(document).ready(function () {
+        var url = '@Url.Action("PartialViewCreate","Company")';
+
+        $('#Company').change(function () {
+
+            var formdata = new FormData();
+
+            formdata.append("CompanyId", $("#Company").val());
+
+            $.ajax({
+
+                type: 'POST',
+
+                url: '@Url.Action("DropDownList","Company")',
+
+                processData: false,
+
+                contentType: false,
+
+                data: formdata,
+
+                success: function (result) {
+                    //alert(result);
+                    if (result.length > 0){
+                        //alert(result);
+                        $('#dropdown').val(result.status);
+                        $('#dropdown').html('');
+                        var options = '';
+                        for (var i = 0; i < result.length; i++) {
+                            options += '<option value="' + result[i].id + '">' + result[i].name + '</option>';
+                        }
+                        $('#dropdown').append(options);
+                    }
+                    
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
