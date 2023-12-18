@@ -49,10 +49,13 @@ namespace SlidesShow.Controllers
 
             return View(newList);
         }
-        public IActionResult Create(int id)
+        public IActionResult BootstrapSlide(int id)
         {
-            ViewBag.CreatePropertyId = id;
-            return View();
+            var imageDetails = _context.CompanySlides.Where(i => i.PropertyId == id).OrderByDescending(o=>o.Id).ToList();
+
+            var requiredDetails = _map.Map<List<Preview>>(imageDetails);
+
+            return View(requiredDetails);
         }
 
         public IActionResult PartialViewCreate()
@@ -110,7 +113,19 @@ namespace SlidesShow.Controllers
             _context.CompanySlides.Add(companySlide);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            IEnumerable<CompanySlide> images = _context.CompanySlides.Where(s => s.PropertyId == inputs.PropertyId).OrderByDescending(o => o.Id).ToList();
+
+            IEnumerable<createslide> lists = _map.Map<IEnumerable<createslide>>(images);
+
+            Addnew newList = new Addnew();
+            newList.AllSelected = lists;
+            newList.clubId = inputs.PropertyId;
+
+            ViewData["ClubName"] = _context.Companies.FirstOrDefault(c => c.Id == newList.clubId).Name;
+
+            ViewData["propId"] = newList.clubId;
+
+            return View("Selected", newList);
 
         }
 

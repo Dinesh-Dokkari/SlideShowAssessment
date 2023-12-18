@@ -39,9 +39,13 @@
         <h4>Screen Configuration for @ViewData["ClubName"]</h4>
     </div>
     <div class="col text-end">
-        <a id="loadPartialButton" style="text-decoration:none" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i>Add Slide</a>
-        <a id="Preview" style="text-decoration:none" asp-route-id="@Model.clubId" asp-controller="Company" asp-action="ShowSlideShow" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i>Preview</a>
+        <a id="loadPartialButton" style="text-decoration:none" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i> Add Slide</a>
+        <a id="Preview1" style="text-decoration:none" asp-route-id="@Model.clubId" asp-controller="Company" asp-action="BootstrapSlide" class="btn btn-outline-primary"><i class="bi bi-eye-fill"></i> Preview</a>
     </div>
+</div>
+
+<div id="partialdiv" style="display:none;">
+    <partial name="_Create" model="@Model.NewAdd" />
 </div>
 
 <table class="table table-striped" id="table">
@@ -68,7 +72,7 @@
                 Duration
             </th>
             <th>
-                BackgroundColor
+                BG Color
             </th>
             <th>
                 Footer
@@ -79,16 +83,13 @@
         </tr>
     </thead>
     <tbody>
-        <div id="partialContainer"></div>
-
-
         @foreach (var item in Model.AllSelected)
         {
 
             <tr>
 
                 <td>
-                    <img src="@Url.Content("~/Images/"+(item.ImagePath))" alt="Image" width="50" height="50" />
+                    <img src="@Url.Content("~/Images/"+(item.ImagePath))" alt="Image" width="85" height="55" />
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
@@ -129,18 +130,24 @@
     </tbody>
 </table>
 
-<div id="partialBlok">
 
-</div>
-<div>
-    <partial name="_Create" model="@Model.NewAdd" />
-</div>
+
 
 
 
 
 
 <script type="text/javascript">
+
+
+    document.getElementById("loadPartialButton").onclick = function () {
+        var secondDiv = document.getElementById("partialdiv");
+        if (secondDiv.style.display === "none") {
+            secondDiv.style.display = "block";
+        } else {
+            secondDiv.style.display = "none";
+        }
+    };
 
 
 
