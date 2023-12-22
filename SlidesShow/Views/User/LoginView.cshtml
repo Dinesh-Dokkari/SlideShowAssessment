@@ -1,0 +1,78 @@
+﻿@model SlidesShow.DTOs.LoginDetails
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1>User @ViewData["Title"]</h1>
+
+
+<div>
+    <h3 class="text-success">@ViewBag.Registered</h3>
+</div>
+
+<div class="mainBlock">
+        <div class="col-md-4">
+            <form asp-action="LoginView" asp-controller="User" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+                <table>
+
+                    <tr>
+                        <td>
+                            <div class="form-group">
+
+                                <label asp-for="Email" class="control-label"></label>
+                            <input class="inputF" autocomplete="off" asp-for="Email" size="50" placeholder="Enter Email" />
+                                <div class="errorBlock">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label asp-for="Password" class="control-label"></label>
+                                <input class="inputF" type="password" size="50" asp-for="Password" placeholder="Enter password " />
+
+                                <div class="errorBlock">
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+
+
+
+                </table>
+            <div>
+                <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+            </div>
+            <div>
+                <h3 class="text-danger">
+                    @ViewBag.loginError
+                </h3>
+            </div>
+
+                <br />
+                <div class="form-group">
+                    <input type="submit" value="LogIn" class="btn btn-primary button" />
+                </div>
+
+            </form>
+            <br />
+        <div class="block2">
+            New User?  <a asp-controller="User" asp-action="Register">CreateAccount</a>
+        </div>
+        </div>
+
+    </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

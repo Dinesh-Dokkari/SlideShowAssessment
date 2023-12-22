@@ -3,33 +3,52 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <h2 class="text-center">SlideShow Application</h2>
-<br />
+
+
+<style>
+    table {
+        border: 1px solid;
+        color: #177fb0;
+        border-collapse: collapse;
+    }
+</style>
 
 
 <form asp-action="Selected" method="post">
 
+    <div>
+        <label>Select Parent Property</label>
+        <select id="Company" name="Company" id="Company">
+            <option value="1">Hines</option>
+            <option value="2">Hilton</option>
+            <option value="3" selected>All</option>
 
-    <label>Select Parent Property</label>
-    <select id ="Company" name="Company" id="Company">
-        <option value="1">Hines</option>
-        <option value="2">Hilton</option>
-        <option value="3" selected>All</option>
-        
-    </select>
+        </select>
+    </div>
+    <br/>
+    <div>
 
-    <label>Select Club</label>
-    <select id="dropdown" name="Club" id="club" asp-items="ViewBag.SubList">
-        <option value="3">Hines_Hotels</option>
-        <option value="4">Hines_Gyms</option>
-        <option value="5">Hines_Spa</option>
-        <option value="6">Hilton_Hotels</option>
-        <option value="7">Hines_Gyms</option>
-        <option value="8">Hines_Spa</option>
-        <option value="9">Cafeteria</option>
 
-    </select>
+        <label>Select Club</label>
+        <select id="dropdown" name="Club" id="club" asp-items="ViewBag.ClubsList">
+            @*            <option value="3">Hines_Hotels</option>
+            <option value="4">Hines_Gyms</option>
+            <option value="5">Hines_Spa</option>
+            <option value="6">Hilton_Hotels</option>
+            <option value="7">Hilton_Gyms</option>
+            <option value="8">Hilton_Spa</option>
+            <option value="9">Cafeteria</option>*@
 
-    <input type="submit" value="Select" />
+        </select>
+
+    </div>
+    <br />
+    <div>
+
+        <input type="submit" class="btn btn-primary" value="Enter" />
+
+    </div>
+
 
 </form>
 <br />
@@ -44,20 +63,29 @@
     </div>
 </div>
 
+<div id="ErrorMessage" class="text-danger" style="display:inline-block ">
+    <h3>@TempData["imageEmpty"]</h3>
+    <h3>@TempData["FileFormat"]</h3>
+    <h3 class="text-primary">@TempData["Deleted"]</h3>
+
+</div>
+
 <div id="partialdiv" style="display:none;">
     <partial name="_Create" model="@Model.NewAdd" />
 </div>
+<br />
 
-<table class="table table-striped" id="table">
-    <thead>
+<h3 class="text-danger">@ViewBag.Image</h3>
+
+
+<table class="table" id="table">
+    <thead style="background:#177fb0; color: white;">
         <tr>
             <th>
                 Image
             </th>
-
             <th>
                 Image Name
-
             </th>
             <th>
                 Width
@@ -116,7 +144,7 @@
                 <td>
 
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>|
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
 
 
                 </td>
@@ -147,29 +175,30 @@
         } else {
             secondDiv.style.display = "none";
         }
+        var errorDiv = document.getElementById("ErrorMessage");
+        if (errorDiv.style.display === "none") {
+            errorDiv.style.display = "block";
+        } else {
+            errorDiv.style.display = "none";
+        }
     };
+
+
 
 
 
     $(document).ready(function () {
         var url = '@Url.Action("PartialViewCreate","Company")';
-
+        $("#Company").val('@TempData["CompanyId"]');
+        $("#dropdown").val('@TempData["ClubId"]');
         $('#Company').change(function () {
-
             var formdata = new FormData();
-
             formdata.append("CompanyId", $("#Company").val());
-
             $.ajax({
-
                 type: 'POST',
-
                 url: '@Url.Action("DropDownList","Company")',
-
                 processData: false,
-
                 contentType: false,
-
                 data: formdata,
 
                 success: function (result) {

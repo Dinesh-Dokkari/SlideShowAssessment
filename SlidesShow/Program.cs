@@ -15,6 +15,17 @@ namespace SlidesShow
 
             builder.Services.AddAutoMapper(typeof(mapConfig));
 
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            builder.Services.AddDistributedMemoryCache();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(20);
+                options.Cookie.IsEssential = true;
+                options.Cookie.HttpOnly = true;
+            });
+
 
             var app = builder.Build();
 
@@ -31,11 +42,14 @@ namespace SlidesShow
 
             app.UseRouting();
 
+            app.UseSession();
+
+
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Company}/{action=Index}/{id?}");
+                pattern: "{controller=User}/{action=LoginView}/{id?}");
 
             app.Run();
         }

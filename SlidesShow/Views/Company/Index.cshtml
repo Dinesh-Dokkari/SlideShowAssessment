@@ -11,16 +11,92 @@
     <h1 class="display-4">Welcome</h1>
     <br/>
     <br/>
+    <h4 class="text-danger">@ViewBag.SelectClub</h4>
     <form asp-action="Selected" method="post">
 
+        <div>
+        <label>Select Parent Property</label>
+        <select id="Company" name="Company" id="Company">
+            <option value="1">Hines</option>
+            <option value="2">Hilton</option>
+            <option value="3" selected>All</option>
 
-        <input type="hidden" value="3" name="Club" />
-        <input type="hidden" value="1" name="Company" />
+        </select>
+        </div>
+        <br />
+        <div>
 
-        <input type="submit" class="btn-primary text-center" value="CLick Here to add Slides" />
+        
+        <label>Select Club</label>
+        <select id="dropdown" name="Club" id="club" asp-items="ViewBag.ClubsList">
+@*            <option value="3">Hines_Hotels</option>
+            <option value="4">Hines_Gyms</option>
+            <option value="5">Hines_Spa</option>
+            <option value="6">Hilton_Hotels</option>
+            <option value="7">Hilton_Gyms</option>
+            <option value="8">Hilton_Spa</option>
+            <option value="9">Cafeteria</option>*@
+
+        </select>
+
+        </div>
+        <br />
+        <div>
+
+        <input type="submit" class="btn btn-primary" value="Enter" />
+
+        </div>
+
 
     </form>
+    <br />
+
+    <h3 class="text-primary">@TempData["Deleted"]</h3>
 </div>
 
 
-<br />
+<br/>
+
+
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var url = '@Url.Action("PartialViewCreate","Company")';
+        $("#Company").val('@TempData["CompanyId"]');
+        $("#dropdown").val('@TempData["ClubId"]');
+        $('#Company').change(function () {
+            var formdata = new FormData();
+            formdata.append("CompanyId", $("#Company").val());
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DropDownList","Company")',
+                processData: false,
+                contentType: false,
+                data: formdata,
+
+                success: function (result) {
+                    //alert(result);
+                    if (result.length > 0) {
+                        //alert(result);
+                        $('#dropdown').val(result.status);
+                        $('#dropdown').html('');
+                        var options = '';
+                        for (var i = 0; i < result.length; i++) {
+                            options += '<option value="' + result[i].id + '">' + result[i].name + '</option>';
+                        }
+                        $('#dropdown').append(options);
+                    }
+
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>

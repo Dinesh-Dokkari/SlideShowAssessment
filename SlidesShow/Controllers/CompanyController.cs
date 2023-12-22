@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SlidesShow.Models;
 using SixLabors.ImageSharp;
+using System.ComponentModel.Design;
+using static System.Reflection.Metadata.BlobBuilder;
 
 
 namespace SlidesShow.Controllers
@@ -22,9 +24,40 @@ namespace SlidesShow.Controllers
         }
         public IActionResult Index()
         {
-            //IEnumerable<CompanySlide> images = _context.CompanySlides.ToList();
+            if (HttpContext.Session.GetInt32("loggedIn") != 1)
+            {
+                return RedirectToAction("LoginView","User");
+            }
 
-            //IEnumerable<createslide> lists = _map.Map<IEnumerable<createslide>>(images);
+            var userId = HttpContext.Session.GetInt32("userId");
+            var user = _context.Users.FirstOrDefault(u=>u.Id == userId);
+            if (user != null)
+            {
+                if(user.SavedCompanyId == null || user.SavedClubId == null)
+                {
+                    TempData["CompanyId"] = 3;
+                    TempData["ClubId"] = 3;
+                    var clubs = _context.Companies.Where(s => s.IsParent == false).ToList();
+
+                    ViewData["ClubsList"] = new SelectList(clubs, "Id", "Name");
+                }
+                else if(user.SavedCompanyId == 3)
+                {
+                    TempData["CompanyId"] = user.SavedCompanyId;
+                    TempData["ClubId"] = user.SavedClubId;
+                    var clubs = _context.Companies.Where(s => s.IsParent == false).ToList();
+
+                    ViewData["ClubsList"] = new SelectList(clubs, "Id", "Name");
+                }
+                else
+                {
+                    TempData["CompanyId"] = user.SavedCompanyId;
+                    TempData["ClubId"] = user.SavedClubId;
+                    var clubs = _context.Companies.Where(s => s.CompanyId == user.SavedCompanyId).ToList();
+
+                    ViewData["ClubsList"] = new SelectList(clubs, "Id", "Name");
+                }
+            }
 
             return View();
         }
@@ -35,19 +68,74 @@ namespace SlidesShow.Controllers
 
             string Club = formCollection["Club"];
 
-            IEnumerable<CompanySlide> images = _context.CompanySlides.Where(s=>s.PropertyId == int.Parse(Club)).OrderByDescending(o=>o.Id).ToList();
+            int userId = (int)HttpContext.Session.GetInt32("userId");
+
+            var currentUser = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+            if(currentUser != null && Club != null)
+            {
+                currentUser.SavedCompanyId = int.Parse(Company);
+                currentUser.SavedClubId = int.Parse(Club);
+
+                _context.Users.Update(currentUser);
+                int result = _context.SaveChanges();
+                HttpContext.Session.SetInt32("companyId", int.Parse(Company));
+                HttpContext.Session.SetInt32("clubId", int.Parse(Club));
+
+                //Console.WriteLine(HttpContext.Session.GetInt32("companyId"));
+                //Console.WriteLine(HttpContext.Session.GetInt32("clubId"));
+
+                return RedirectToAction("Required", new { companyId = int.Parse(Company), clubId = int.Parse(Club) });
+
+            }
+            else
+            {
+                ViewBag.SelectClub = "Please Select Club";
+                return RedirectToAction("Index");
+
+            }
+
+        }
+
+        public IActionResult Required(int companyId,int clubId)
+        { 
+            IEnumerable<CompanySlide> images = _context.CompanySlides.Where(s=>s.PropertyId == clubId).OrderByDescending(o=>o.Id).ToList();
 
             IEnumerable<createslide> lists = _map.Map<IEnumerable<createslide>>(images);
 
             Addnew newList = new Addnew();
             newList.AllSelected = lists;
-            newList.clubId = int.Parse(Club);
+            newList.clubId = clubId;
 
             ViewData["ClubName"] = _context.Companies.FirstOrDefault(c=>c.Id == newList.clubId).Name;
 
             ViewData["propId"] = newList.clubId;
 
-            return View(newList);
+            if (companyId != 3)
+            {
+                var clubs = _context.Companies.Where(s => s.CompanyId == companyId).ToList();
+                ViewData["ClubsList"] = new SelectList(clubs, "Id", "Name");
+
+            }
+            else
+            {
+                var clubs = _context.Companies.Where(s => s.IsParent == false).ToList();
+                ViewData["ClubsList"] = new SelectList(clubs, "Id", "Name");
+            }
+
+
+            var userId = HttpContext.Session.GetInt32("userId");
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+            if(user != null)
+            {
+                TempData["CompanyId"] = user.SavedCompanyId;
+                TempData["ClubId"] = user.SavedClubId;
+            }
+
+
+
+            return View("Selected",newList);
         }
         public IActionResult BootstrapSlide(int id)
         {
@@ -87,45 +175,44 @@ namespace SlidesShow.Controllers
                 else
                 {
                     ViewBag.Image = "Please Upload .png ,.jpg,.jpeg formats only!!";
+                    TempData["FileFormat"] = "Please Upload .png ,.jpg,.jpeg formats only!!";
+
+                    return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
                 }
             }
-            using (var image = Image.Load(inputs.Image.OpenReadStream()))
+            if (inputs.Image != null)
             {
-                width = image.Width;
-                height = image.Height;
+                using (var image = Image.Load(inputs.Image.OpenReadStream()))
+                {
+                    width = image.Width;
+                    height = image.Height;
+
+                }
+                CompanySlide companySlide = new CompanySlide
+                {
+                    PropertyId = inputs.PropertyId,
+                    ImagePath = uniqueImageName,
+                    Name = inputs.Image.FileName,
+                    Width = width,
+                    Height = height,
+                    FileSize = inputs.Image.Length,
+                    BackgroundColor = inputs.BackgroundColor,
+                    Duration = inputs.Duration,
+                    Footer = inputs.Footer,
+                };
+
+                _context.CompanySlides.Add(companySlide);
+                _context.SaveChanges();
+
+                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
 
             }
-
-
-            CompanySlide companySlide = new CompanySlide
+            else
             {
-                PropertyId = inputs.PropertyId,
-                ImagePath = uniqueImageName,
-                Name = inputs.Image.FileName,
-                Width = width,
-                Height = height,
-                FileSize = inputs.Image.Length,
-                BackgroundColor = inputs.BackgroundColor,
-                Duration=inputs.Duration,
-                Footer=inputs.Footer,   
-            };
-
-            _context.CompanySlides.Add(companySlide);
-            _context.SaveChanges();
-
-            IEnumerable<CompanySlide> images = _context.CompanySlides.Where(s => s.PropertyId == inputs.PropertyId).OrderByDescending(o => o.Id).ToList();
-
-            IEnumerable<createslide> lists = _map.Map<IEnumerable<createslide>>(images);
-
-            Addnew newList = new Addnew();
-            newList.AllSelected = lists;
-            newList.clubId = inputs.PropertyId;
-
-            ViewData["ClubName"] = _context.Companies.FirstOrDefault(c => c.Id == newList.clubId).Name;
-
-            ViewData["propId"] = newList.clubId;
-
-            return View("Selected", newList);
+                TempData["imageEmpty"] = "Image Cant be Empty!!";
+                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"),clubId = HttpContext.Session.GetInt32("clubId") });
+            }
 
         }
 
@@ -137,9 +224,10 @@ namespace SlidesShow.Controllers
                 if (slide != null)
                 {
                     _context.CompanySlides.Remove(slide);
-                    _context.SaveChanges();
+                    _context.SaveChanges(); 
+                    TempData["Deleted"] = "Record Successfully Deleted!!";
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
             }
             catch (Exception e)
             {
