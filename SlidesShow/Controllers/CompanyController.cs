@@ -151,6 +151,11 @@ namespace SlidesShow.Controllers
             return PartialView("_Create", new createslide());
         }
 
+        public IActionResult Edit(int id)
+        {
+            return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(createslide inputs)

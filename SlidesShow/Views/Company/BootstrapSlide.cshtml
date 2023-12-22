@@ -40,7 +40,7 @@
                 var imageDuration = Model[i].Duration * 1000;
                 var imagePath = Model[i].ImagePath;
                 <div class="@(i == 0 ? "carousel-item active" : "carousel-item")" data-bs-interval="@imageDuration">
-                    <img class="d-block w-100" src="/Images/@imagePath" alt="Slide @(i+1)">
+                    <img class="d-block w-100" src="/Images/@imagePath" style="width: 100%;" alt="Slide @(i+1)">
                 @{
                     if (Model[i].Footer == true)
                     {
