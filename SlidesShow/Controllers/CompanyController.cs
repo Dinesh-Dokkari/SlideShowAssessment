@@ -153,6 +153,88 @@ namespace SlidesShow.Controllers
 
         public IActionResult Edit(int id)
         {
+            var imageSlide=_context.CompanySlides.FirstOrDefault(i => i.Id == id);
+            var updatemodel = _map.Map<EditSlide>(imageSlide);
+            return View("_Edit", updatemodel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(EditSlide editSlide)
+        {
+            var imageSlide = _context.CompanySlides.FirstOrDefault(i => i.Id == editSlide.Id);
+            string uniqueImageName = null;
+            int width = 0;
+            int height = 0;
+
+            if (editSlide.Image != null && editSlide.Image.Length > 0)
+            {
+                string uploadfolder = Path.Combine(_environment.WebRootPath, "Images");
+                uniqueImageName = Guid.NewGuid().ToString() + "_" + editSlide.Image.FileName;
+
+                var extension = Path.GetExtension(uniqueImageName);
+
+                if (extension.ToLower().Equals(".png") || extension.ToLower().Equals(".jpg")
+                    || extension.ToLower().Equals(".jpeg"))
+                {
+
+                    string filepath = Path.Combine(uploadfolder, uniqueImageName);
+                    editSlide.Image.CopyTo(new FileStream(filepath, FileMode.Create));
+                }
+                else
+                {
+                    ViewBag.Image = "Please Upload .png ,.jpg,.jpeg formats only!!";
+                    TempData["FileFormat"] = "Please Upload .png ,.jpg,.jpeg formats only!!";
+
+                    return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
+                }
+            }
+            if (editSlide.Image != null)
+            {
+                using (var image = Image.Load(editSlide.Image.OpenReadStream()))
+                {
+                    width = image.Width;
+                    height = image.Height;
+
+                }
+                CompanySlide companySlide = new CompanySlide
+                {
+                    Id=editSlide.Id,
+                    PropertyId = editSlide.PropertyId,
+                    ImagePath = uniqueImageName,
+                    Name = editSlide.Image.FileName,
+                    Width = width,
+                    Height = height,
+                    FileSize = editSlide.Image.Length,
+                    BackgroundColor = editSlide.BackgroundColor,
+                    Duration = editSlide.Duration,
+                    Footer = editSlide.Footer,
+                };
+
+                _context.CompanySlides.Update(companySlide);
+                _context.SaveChanges();
+
+                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
+            }
+
+
+            
+            else
+            {
+                if (editSlide != null)
+                {
+                    imageSlide.Name = editSlide.Name;
+                    imageSlide.Duration = editSlide.Duration;
+                    imageSlide.Footer = editSlide.Footer;
+                    imageSlide.BackgroundColor = editSlide.BackgroundColor;
+
+                    _context.CompanySlides.Update(imageSlide);
+                    _context.SaveChanges();
+                }
+
+            }
+
             return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
         }
 

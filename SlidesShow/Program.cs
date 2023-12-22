@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SlidesShow.Models;
 
 namespace SlidesShow
@@ -11,7 +12,11 @@ namespace SlidesShow
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<SlidesDbContext>(options=>options.UseSqlServer(builder.Configuration.GetConnectionString("default")));
+            builder.Services.AddDbContext<SlidesDbContext>(options =>
+            {
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                options.UseSqlServer(builder.Configuration.GetConnectionString("default"));
+            });
 
             builder.Services.AddAutoMapper(typeof(mapConfig));
 

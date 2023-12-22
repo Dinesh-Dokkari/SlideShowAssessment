@@ -8,6 +8,7 @@ namespace SlidesShow.Models
         {
             CreateMap<CompanySlide, createslide>().ReverseMap();
             CreateMap<CompanySlide, Preview>().ReverseMap();
+            CreateMap<CompanySlide, EditSlide>().ReverseMap();
         }
     }
 }
