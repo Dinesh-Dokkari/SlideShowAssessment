@@ -31,5 +31,8 @@ namespace SlidesShow.Models
         [Required]
 
         public bool? Footer { get; set; }
+
+        public bool? IsImage { get; set; }
+
     }
 }

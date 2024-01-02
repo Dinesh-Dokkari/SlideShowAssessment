@@ -19,4 +19,3 @@ public partial class User
 
     public int? SavedClubId { get; set; }
 }
-

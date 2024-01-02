@@ -30,5 +30,9 @@ namespace SlidesShow.Models
         [NotMapped]
         public int createPropId { get; set; }
 
+        [NotMapped]
+        public bool? IsImage { get; set; }
+
+
     }
 }

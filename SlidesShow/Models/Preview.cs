@@ -15,5 +15,9 @@
         public int? BackgroundColor { get; set; }
 
         public bool? Footer { get; set; }
+
+        public bool? IsImage { get; set; }
+
     }
+
 }

@@ -117,7 +117,18 @@
             <tr>
 
                 <td>
-                    <img src="@Url.Content("~/Images/"+(item.ImagePath))" alt="Image" width="85" height="55" />
+                    @if(item.IsImage == false)
+                    {
+                        <img src="@Url.Content("~/Images/video.png")" width="85" height="55">
+@*                        <video width="85" height="55" controls autoplay loop muted class="myvid" id="player">
+                            <source src="@Url.Content("~/Images/"+(item.ImagePath))" type="video/mp4">
+                        </video>*@
+                    }
+                    else
+                    {
+                        <img src="@Url.Content("~/Images/"+(item.ImagePath))" width="85" height="55">
+                    }
+
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
@@ -226,5 +237,3 @@
 </script>
 
 
-
-<a id="loadPartialButton" style="text-decoration:none" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i> Add Slide</a>

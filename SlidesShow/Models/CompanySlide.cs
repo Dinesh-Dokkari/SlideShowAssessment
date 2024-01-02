@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace SlidesShow.Models;
@@ -12,7 +11,6 @@ public partial class CompanySlide
 
     public string? ImagePath { get; set; }
 
-    [Required]
     public string? Name { get; set; }
 
     public int? Width { get; set; }
@@ -27,5 +25,8 @@ public partial class CompanySlide
 
     public bool? Footer { get; set; }
 
+    public bool? IsImage { get; set; }
+
     public virtual Company Property { get; set; } = null!;
+
 }

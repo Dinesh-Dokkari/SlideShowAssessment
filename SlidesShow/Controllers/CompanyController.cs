@@ -174,11 +174,68 @@ namespace SlidesShow.Controllers
                 var extension = Path.GetExtension(uniqueImageName);
 
                 if (extension.ToLower().Equals(".png") || extension.ToLower().Equals(".jpg")
-                    || extension.ToLower().Equals(".jpeg"))
+                    || extension.ToLower().Equals(".jpeg") || extension.ToLower().Equals(".mp4"))
                 {
-
                     string filepath = Path.Combine(uploadfolder, uniqueImageName);
                     editSlide.Image.CopyTo(new FileStream(filepath, FileMode.Create));
+
+                    if (extension.ToLower().Equals(".mp4"))
+                    {
+                        var ffProbe = new NReco.VideoInfo.FFProbe();
+                        var videoInfo = ffProbe.GetMediaInfo(filepath);
+                        Console.WriteLine(videoInfo.FormatName);
+                        Console.WriteLine(videoInfo.Duration.Seconds);
+                        CompanySlide companySlide = new CompanySlide
+                        {
+                            PropertyId = editSlide.PropertyId,
+                            ImagePath = uniqueImageName,
+                            Name = editSlide.Image.FileName,
+                            Width = width,
+                            Height = height,
+                            FileSize = editSlide.Image.Length,
+                            BackgroundColor = editSlide.BackgroundColor,
+                            Duration = videoInfo.Duration.Seconds,
+                            Footer = editSlide.Footer,
+                            IsImage = false,
+                        };
+
+                        _context.CompanySlides.Update(companySlide);
+                        _context.SaveChanges();
+
+                        return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+                    }
+                    else
+                    {
+                        if (editSlide.Image != null)
+                        {
+                            using (var image = Image.Load(editSlide.Image.OpenReadStream()))
+                            {
+                                width = image.Width;
+                                height = image.Height;
+
+                            }
+                            CompanySlide companySlide = new CompanySlide
+                            {
+                                Id = editSlide.Id,
+                                PropertyId = editSlide.PropertyId,
+                                ImagePath = uniqueImageName,
+                                Name = editSlide.Image.FileName,
+                                Width = width,
+                                Height = height,
+                                FileSize = editSlide.Image.Length,
+                                BackgroundColor = editSlide.BackgroundColor,
+                                Duration = editSlide.Duration,
+                                Footer = editSlide.Footer,
+                            };
+
+                            _context.CompanySlides.Update(companySlide);
+                            _context.SaveChanges();
+
+                            return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
+                        }
+                    }
+
                 }
                 else
                 {
@@ -186,40 +243,8 @@ namespace SlidesShow.Controllers
                     TempData["FileFormat"] = "Please Upload .png ,.jpg,.jpeg formats only!!";
 
                     return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
-
                 }
             }
-            if (editSlide.Image != null)
-            {
-                using (var image = Image.Load(editSlide.Image.OpenReadStream()))
-                {
-                    width = image.Width;
-                    height = image.Height;
-
-                }
-                CompanySlide companySlide = new CompanySlide
-                {
-                    Id=editSlide.Id,
-                    PropertyId = editSlide.PropertyId,
-                    ImagePath = uniqueImageName,
-                    Name = editSlide.Image.FileName,
-                    Width = width,
-                    Height = height,
-                    FileSize = editSlide.Image.Length,
-                    BackgroundColor = editSlide.BackgroundColor,
-                    Duration = editSlide.Duration,
-                    Footer = editSlide.Footer,
-                };
-
-                _context.CompanySlides.Update(companySlide);
-                _context.SaveChanges();
-
-                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
-
-            }
-
-
-            
             else
             {
                 if (editSlide != null)
@@ -253,53 +278,81 @@ namespace SlidesShow.Controllers
                 var extension = Path.GetExtension(uniqueImageName);
 
                 if (extension.ToLower().Equals(".png") || extension.ToLower().Equals(".jpg")
-                    || extension.ToLower().Equals(".jpeg"))
+                    || extension.ToLower().Equals(".jpeg") || extension.ToLower().Equals(".mp4"))
                 {
 
                     string filepath = Path.Combine(uploadfolder, uniqueImageName);
                     inputs.Image.CopyTo(new FileStream(filepath, FileMode.Create));
+
+                    if (extension.ToLower().Equals(".mp4"))
+                    {
+                        var ffProbe = new NReco.VideoInfo.FFProbe();
+                        var videoInfo = ffProbe.GetMediaInfo(filepath);
+                        Console.WriteLine(videoInfo.FormatName);
+                        Console.WriteLine(videoInfo.Duration.Seconds);
+                        CompanySlide companySlide = new CompanySlide
+                        {
+                            PropertyId = inputs.PropertyId,
+                            ImagePath = uniqueImageName,
+                            Name = inputs.Image.FileName,
+                            Width = width,
+                            Height = height,
+                            FileSize = inputs.Image.Length,
+                            BackgroundColor = inputs.BackgroundColor,
+                            Duration = videoInfo.Duration.Seconds,
+                            Footer = inputs.Footer,
+                            IsImage = false,
+                        };
+                        _context.CompanySlides.Add(companySlide);
+                        _context.SaveChanges();
+
+                        return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+                    }
+                    else if(inputs.Image != null)
+                    {
+                        using (var image = Image.Load(inputs.Image.OpenReadStream()))
+                        {
+                            width = image.Width;
+                            height = image.Height;
+
+                        }
+                        CompanySlide companySlide = new CompanySlide
+                        {
+                            PropertyId = inputs.PropertyId,
+                            ImagePath = uniqueImageName,
+                            Name = inputs.Image.FileName,
+                            Width = width,
+                            Height = height,
+                            FileSize = inputs.Image.Length,
+                            BackgroundColor = inputs.BackgroundColor,
+                            Duration = inputs.Duration,
+                            Footer = inputs.Footer,
+                            IsImage = true,
+                        };
+
+                        _context.CompanySlides.Add(companySlide);
+                        _context.SaveChanges();
+
+                        return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
+                    }
                 }
                 else
                 {
-                    ViewBag.Image = "Please Upload .png ,.jpg,.jpeg formats only!!";
-                    TempData["FileFormat"] = "Please Upload .png ,.jpg,.jpeg formats only!!";
+                    ViewBag.Image = "Please Upload .png ,.jpg,.jpeg,.mp4 formats only!!";
+                    TempData["FileFormat"] = "Please Upload .png ,.jpg,.jpeg,.mp4 formats only!!";
 
                     return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
 
                 }
-            }
-            if (inputs.Image != null)
-            {
-                using (var image = Image.Load(inputs.Image.OpenReadStream()))
-                {
-                    width = image.Width;
-                    height = image.Height;
-
-                }
-                CompanySlide companySlide = new CompanySlide
-                {
-                    PropertyId = inputs.PropertyId,
-                    ImagePath = uniqueImageName,
-                    Name = inputs.Image.FileName,
-                    Width = width,
-                    Height = height,
-                    FileSize = inputs.Image.Length,
-                    BackgroundColor = inputs.BackgroundColor,
-                    Duration = inputs.Duration,
-                    Footer = inputs.Footer,
-                };
-
-                _context.CompanySlides.Add(companySlide);
-                _context.SaveChanges();
-
-                return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
-
             }
             else
             {
                 TempData["imageEmpty"] = "Image Cant be Empty!!";
                 return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"),clubId = HttpContext.Session.GetInt32("clubId") });
             }
+            return RedirectToAction("Required", new { companyId = HttpContext.Session.GetInt32("companyId"), clubId = HttpContext.Session.GetInt32("clubId") });
+
 
         }
 
@@ -310,6 +363,14 @@ namespace SlidesShow.Controllers
                 var slide =  _context.CompanySlides.Find(id);
                 if (slide != null)
                 {
+                    if(slide.ImagePath != null)
+                    {
+                        string uploadedpath = Path.Combine(_environment.WebRootPath, "Images", slide.ImagePath);
+
+                        FileInfo file = new FileInfo(uploadedpath);
+                        file.Delete();
+
+                    }
                     _context.CompanySlides.Remove(slide);
                     _context.SaveChanges(); 
                     TempData["Deleted"] = "Record Successfully Deleted!!";

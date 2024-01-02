@@ -8,8 +8,17 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="PropertyId" />
-            <label>Present Image</label>
-            <img src="@Url.Content("~/Images/"+(Model.ImagePath))" alt="Image" width="85" height="55" />
+            @if(Model.IsImage != true)
+            {
+                <h5>Present Video : </h5>
+                <img src="@Url.Content("~/Images/video.png")" alt="Image" width="85" height="55" />
+
+            }
+            else
+            {
+                <h5>Present Image : </h5>
+                <img src="@Url.Content("~/Images/"+(Model.ImagePath))" alt="Image" width="85" height="55" />
+            }
             <br />
 
             <div class="form-group">
